@@ -1,0 +1,576 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.game-container {
+    position: relative;
+    border: 3px solid #4a4a6a;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    background: #0a0a14;
+}
+
+#gameCanvas {
+    display: block;
+    background: #0a0a14;
+}
+
+.ui-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+.pause-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.pause-button:hover {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+.pause-button:active {
+    transform: scale(0.95);
+}
+
+.kills-display {
+    position: absolute;
+    top: 70px;
+    left: 10px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.start-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.start-message {
+    background: #1b1b1b;
+    color: #e8e8e8;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    min-width: 240px;
+    max-width: 400px;
+    padding: 16px 20px;
+    text-align: center;
+    
+    /* 像素边框 */
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #7a7a7a,
+        0 0 0 6px #000;
+    
+    image-rendering: pixelated;
+}
+
+.start-message .pixel-tip__title {
+    color: #ffd800;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #555;
+    padding-bottom: 6px;
+    text-align: center;
+}
+
+.start-message .pixel-tip__content {
+    white-space: pre-line;
+    text-align: center;
+}
+
+.start-message p {
+    margin-bottom: 15px;
+}
+
+.start-button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: normal;
+    margin-top: 15px;
+    
+    /* 像素边框 */
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #4CAF50;
+    
+    image-rendering: pixelated;
+}
+
+.start-button:hover {
+    background: #45a049;
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #45a049,
+        0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.start-button:active {
+    transform: scale(0.95);
+}
+
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+}
+
+.pause-message {
+    background: #1b1b1b;
+    color: #e8e8e8;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    min-width: 240px;
+    max-width: 400px;
+    padding: 16px 20px;
+    text-align: left;
+    
+    /* 像素边框 */
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #7a7a7a,
+        0 0 0 6px #000;
+    
+    image-rendering: pixelated;
+}
+
+.pause-message .pixel-tip__title {
+    color: #ffd800;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #555;
+    padding-bottom: 6px;
+}
+
+.pause-message .pixel-tip__content {
+    white-space: pre-line;
+    text-align: center;
+}
+
+.resume-button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: normal;
+    margin-top: 15px;
+    
+    /* 像素边框 */
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #4CAF50;
+    
+    image-rendering: pixelated;
+}
+
+.resume-button:hover {
+    background: #45a049;
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #45a049,
+        0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.resume-button:active {
+    transform: scale(0.95);
+}
+
+.stats div {
+    margin-bottom: 8px;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+}
+
+.exp-bar-container {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+}
+
+.exp-bar-label {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.exp-bar {
+    width: 200px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.exp-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.upgrade-notification {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    display: none;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    display: none;
+    z-index: 200;
+    border: 3px solid #ff4444;
+}
+
+.game-over h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #ff4444;
+}
+
+.game-over p {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.game-over button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.game-over button:hover {
+    background: #45a049;
+}
+
+.controls-info {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+.joystick-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 50;
+    pointer-events: none;
+}
+
+.joystick-area {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    pointer-events: all;
+    touch-action: none;
+}
+
+.joystick-handle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(76, 175, 80, 0.8);
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .joystick-container {
+        display: block;
+    }
+}
+
+@media (min-width: 769px) {
+    .joystick-container {
+        display: none;
+    }
+}
+
+/* 玩家血条样式 */
+.player-health-bar-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.player-health-bar-background {
+    --height: 30px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 5px;
+    width: 200px;
+    height: var(--height);
+    background-color: #212121;
+    box-shadow: #0c0c0c -2px 2px 4px 0px inset;
+    border-radius: calc(var(--height) / 2);
+}
+
+.player-health-bar {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    --height: 20px;
+    width: 0%;
+    height: var(--height);
+    overflow: hidden;
+    background: rgb(222, 74, 15);
+    background: linear-gradient(
+        0deg,
+        rgba(222, 74, 15, 1) 0%,
+        rgba(249, 199, 79, 1) 100%
+    );
+    border-radius: calc(var(--height) / 2);
+    transition: width 0.1s linear;
+}
+
+.white-bars-container {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    height: 100%;
+}
+
+.white-bar {
+    background: rgb(255, 255, 255);
+    background: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    width: 10px;
+    height: 45px;
+    opacity: 0.3;
+    transform: rotate(45deg);
+    animation: whiteBarMove 2s linear infinite;
+}
+
+@keyframes whiteBarMove {
+    0% {
+        transform: translateX(-100px);
+    }
+    100% {
+        transform: translateX(200px);
+    }
+}
+
+/* 升级选择界面 */
+.upgrade-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.upgrade-container {
+    background: #1b1b1b;
+    color: #e8e8e8;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    min-width: 800px;
+    max-width: 1000px;
+    padding: 20px;
+    text-align: center;
+    
+    /* 像素边框 */
+    box-shadow:
+        0 0 0 2px #000,
+        0 0 0 4px #7a7a7a,
+        0 0 0 6px #000;
+    
+    image-rendering: pixelated;
+}
+
+.upgrade-title {
+    color: #ffd800;
+    font-size: 18px;
+    margin-bottom: 20px;
+    border-bottom: 2px dashed #555;
+    padding-bottom: 10px;
+}
+
+.upgrade-options {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.upgrade-option {
+    flex: 1;
+    min-width: 220px;
+    max-width: 250px;
+    background: #2a2a2a;
+    border: 3px solid #555;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.upgrade-option:hover {
+    border-color: #ffd800;
+    background: #333;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 216, 0, 0.5);
+}
+
+.upgrade-option.selected {
+    border-color: #4CAF50;
+    background: #2a4a2a;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
+}
+
+.upgrade-option-name {
+    color: #ffd800;
+    font-size: 14px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+.upgrade-option-level {
+    color: #4CAF50;
+    font-size: 10px;
+    margin-bottom: 10px;
+}
+
+.upgrade-option-description {
+    color: #ccc;
+    font-size: 9px;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
+.upgrade-option-special {
+    color: #ff6b6b;
+    font-size: 9px;
+    margin-top: 8px;
+    font-style: italic;
+}
+

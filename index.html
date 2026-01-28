@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>坦克生存 - Tank Survivor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="ui-overlay">
+            <button id="pauseButton" class="pause-button" title="暂停/继续">⏸</button>
+            <div class="kills-display" id="killsDisplay" style="display: none;">击杀数: <span id="killsDisplayValue">0</span> / 2500</div>
+            <div class="stats">
+                <div style="display: none;">击杀数: <span id="kills">0</span></div>
+                <div style="display: none;"><span id="targetKills">Boss: 0 / 10</span></div>
+                <div style="display: none;">等级: <span id="level">1</span></div>
+                <div class="exp-bar-container" style="display: none;">
+                    <div class="exp-bar-label">经验值: <span id="expText">0 / 10</span></div>
+                    <div class="exp-bar">
+                        <div class="exp-bar-fill" id="expBarFill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="upgrade-notification" id="upgradeNotification"></div>
+        </div>
+        <div class="start-overlay" id="startOverlay">
+            <div class="pixel-tip start-message">
+                <div class="pixel-tip__title">Pixel Tanker</div>
+                <div class="pixel-tip__content">
+                    <button id="startButton" class="start-button">开始游戏</button>
+                </div>
+            </div>
+        </div>
+        <div class="pause-overlay" id="pauseOverlay" style="display: none;">
+            <div class="pixel-tip pause-message">
+                <div class="pixel-tip__title">游戏已暂停</div>
+                <div class="pixel-tip__content">
+                    <button id="resumeButton" class="resume-button">恢复游戏</button>
+                </div>
+            </div>
+        </div>
+        <div class="upgrade-overlay" id="upgradeOverlay" style="display: none;">
+            <div class="upgrade-container">
+                <div class="upgrade-title">选择升级</div>
+                <div class="upgrade-options" id="upgradeOptions">
+                    <!-- 3个选项将动态生成 -->
+                </div>
+            </div>
+        </div>
+        <div class="game-over" id="gameOver">
+            <h2>游戏结束</h2>
+            <p id="gameOverText"></p>
+            <button onclick="location.reload()">重新开始</button>
+        </div>
+        <div class="controls-info">
+            <p>WASD 控制移动，鼠标控制射击方向</p>
+        </div>
+        <div class="joystick-container">
+            <div class="joystick-area" id="joystickArea">
+                <div class="joystick-handle" id="joystickHandle"></div>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
+
