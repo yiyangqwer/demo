@@ -3115,10 +3115,7 @@ class Laser {
         this.duration = duration; // 持续时间（毫秒），0表示瞬间
         this.startTime = Date.now();
         this.isSweep = isSweep; // 是否扫射模式
-        // Lv 5: 固定方向持续0.5秒，不跟随炮塔转动
-        this.isFixedDirection = isSweep && gameState.upgradeModules.LASER >= 5; // 是否固定方向模式
         this.hitEnemies = new Set(); // 已击中的敌人（避免重复伤害）
-        this.enemyLastDamageTime = new Map(); // 每个敌人上次受到伤害的时间（用于每0.1秒伤害）
         this.isActive = true;
         this.hasProcessed = false; // 标记是否已处理过（用于瞬间激光）
         this.bounceCount = 0; // 激光折射次数
@@ -3291,8 +3288,8 @@ class Laser {
     update() {
         if (!this.isActive) return;
         
-        // 如果是扫射模式且不是固定方向模式，更新角度跟随坦克
-        if (this.isSweep && !this.isFixedDirection) {
+        // 如果是扫射模式，更新角度跟随坦克
+        if (this.isSweep) {
             this.angle = tank.angle;
             this.startX = tank.x + Math.cos(tank.angle) * (tank.width / 2 + 15);
             this.startY = tank.y + Math.sin(tank.angle) * (tank.width / 2 + 15);
@@ -3438,21 +3435,9 @@ class Laser {
         
         // 检查是否在激光宽度范围内
         if (distance < enemy.size / 2 + this.width / 2) {
-            // Lv 5固定方向模式：每0.1秒造成一次伤害
-            if (this.isFixedDirection) {
-                const now = Date.now();
-                const lastDamageTime = this.enemyLastDamageTime.get(enemy) || 0;
-                // 如果距离上次伤害不足0.1秒，不造成伤害
-                if (now - lastDamageTime < 100) {
-                    return false; // 碰撞但未到伤害时间
-                }
-                // 更新该敌人的最后伤害时间
-                this.enemyLastDamageTime.set(enemy, now);
-            } else {
-                // 非固定方向模式：使用原来的逻辑，每个敌人只造成一次伤害
-                if (this.hitEnemies.has(enemy)) return false;
-                this.hitEnemies.add(enemy);
-            }
+            // 每个敌人只造成一次伤害
+            if (this.hitEnemies.has(enemy)) return false;
+            this.hitEnemies.add(enemy);
             // 激光击中敌人不会反弹，只有击中墙壁才会反弹
             return true;
         }
@@ -4497,9 +4482,8 @@ function applyLaserUpgrade(level) {
         // Lv 4: 伤害增加50%
         tank.laserDamage = tank.laserDamage * 1.5; // 伤害增加50%
     } else if (level === 5) {
-        // Lv 5 (质变): 光谱扫射。激光不再是一次性的，而是发射后在0.5秒内维持存在，并跟随坦克炮塔转动
-        tank.laserSweep = true; // 启用扫射模式
-        tank.laserSweepDuration = 500; // 0.5秒（500毫秒）
+        // Lv 5: 在lv4基础上增加击杀回复生命值的效果（击杀回血效果在碰撞检测中实现）
+        // 不改变激光的其他属性，保持lv4的效果
     }
 }
 
