@@ -1517,7 +1517,7 @@ const UPGRADE_MODULES = {
             { level: 2, description: '激光变粗。' },
             { level: 3, description: '激光攻击间隔减少。' },
             { level: 4, description: '激光伤害增加。' },
-            { level: 5, description: 'Lv 5 ：激光在固定方向持续0.5秒，且每0.1秒造成一次伤害。', isSpecial: true }
+            { level: 5, description: '激光击杀会回复生命值。', isSpecial: true }
         ]
     },
     SPREAD: {
@@ -2146,6 +2146,22 @@ class SplitTankMinion {
             ctx.stroke();
         }
         
+        ctx.restore();
+        
+        // 绘制小坦克血条（简单矩形血条）
+        const barWidth = 30;
+        const barHeight = 4;
+        const barX = this.x - barWidth / 2;
+        const barY = this.y - this.size / 2 - 10;
+        const hpPercent = Math.max(0, Math.min(1, this.health / this.maxHealth));
+        
+        ctx.save();
+        // 背景条
+        ctx.fillStyle = '#400';
+        ctx.fillRect(barX, barY, barWidth, barHeight);
+        // 前景血量
+        ctx.fillStyle = '#f00';
+        ctx.fillRect(barX, barY, barWidth * hpPercent, barHeight);
         ctx.restore();
         
         // 绘制炮口闪光效果
@@ -5336,6 +5352,12 @@ function gameLoop() {
                         gameState.kills += enemy.score;
                         gameState.experience += enemy.exp;
                         
+                        // 激光模组Lv 5：激光击杀回复生命值
+                        if (gameState.upgradeModules.LASER >= 5) {
+                            const healAmount = Math.max(1, Math.floor(tank.maxHealth * 0.03)); // 回复3%最大生命值
+                            tank.heal(healAmount);
+                        }
+                        
                         // 液氮弹头Lv 5: 冰爆效果（被冻结的敌人死亡时发射4枚冰刺，只攻击敌人，不攻击玩家）
                         if (tank.freezeExplosion && enemy.isFrozen) {
                             const iceShardCount = 4;
@@ -5365,6 +5387,22 @@ function gameLoop() {
                         checkBossSpawn();
                         checkWin();
                         updateUI();
+                    }
+                }
+            }
+            
+            // 激光与分裂Boss小坦克碰撞
+            for (let j = splitTankMinions.length - 1; j >= 0; j--) {
+                const minion = splitTankMinions[j];
+                if (laser.checkCollision(minion)) {
+                    // 计算激光伤害（考虑反弹伤害减半）
+                    let laserDamage = laser.damage;
+                    if (laser.hasBounced && tank.bounceDamageReduction < 1.0) {
+                        laserDamage = laserDamage * tank.bounceDamageReduction;
+                    }
+                    const killed = minion.takeDamage(laserDamage);
+                    if (killed) {
+                        splitTankMinions.splice(j, 1);
                     }
                 }
             }
@@ -5406,6 +5444,12 @@ function gameLoop() {
                     }
                     
                     if (killed) {
+                        // 激光模组Lv 5：激光击杀回复生命值
+                        if (gameState.upgradeModules.LASER >= 5) {
+                            const healAmount = Math.max(1, Math.floor(tank.maxHealth * 0.03)); // 回复3%最大生命值
+                            tank.heal(healAmount);
+                        }
+                        
                         // 如果击杀的是分裂Boss，开启一段时间的刷怪减速期，方便玩家清理残余怪物
                         if (boss.type === BossType.SPLIT) {
                             // 40 秒内全局刷怪额外减速（延长减速时间）
