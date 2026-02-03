@@ -711,7 +711,8 @@ let gameState = {
     pauseStartTime: 0, // 暂停开始时间（毫秒）
     totalPauseTime: 0, // 总暂停时间（毫秒）
     splitSlowEndTime: 0, // 分裂Boss被击杀后，用于减缓刷怪的结束时间戳
-    splitSlowEndTime: 0, // 分裂Boss被击杀后，用于减缓刷怪的结束时间戳
+    chargeSlowEndTime: 0, // 冲撞Boss被击杀后，用于减缓刷怪的结束时间戳
+    boss4PlusSlowEndTime: 0, // 第4个Boss及之后被击杀后，用于减缓刷怪的结束时间戳
     upgradeModules: {
         LASER: 0,
         SPREAD: 0,
@@ -3768,6 +3769,8 @@ function initGame() {
         lastBossSpawnTime: 0,
         armorBossSpawned: false, // 记录装甲Boss是否已在第4或第5个位置生成
         splitSlowEndTime: 0, // 分裂Boss被击杀后，用于减缓刷怪的结束时间戳
+        chargeSlowEndTime: 0, // 冲撞Boss被击杀后，用于减缓刷怪的结束时间戳
+        boss4PlusSlowEndTime: 0, // 第4个Boss及之后被击杀后，用于减缓刷怪的结束时间戳
         upgradeModules: {
             LASER: 0,
             SPREAD: 0,
@@ -3878,6 +3881,18 @@ function getSpawnIntervalByTime() {
     // 如果刚刚击杀过分裂Boss，在一段时间内进一步减缓刷怪速度
     if (gameState.splitSlowEndTime && Date.now() < gameState.splitSlowEndTime) {
         // 在这段时间内，再额外放大刷新间隔（从1.6增加到2.0，更大幅度减速）
+        spawnInterval = spawnInterval * 2.0;
+    }
+    
+    // 如果刚刚击杀过冲撞Boss，在一段时间内进一步减缓刷怪速度
+    if (gameState.chargeSlowEndTime && Date.now() < gameState.chargeSlowEndTime) {
+        // 在这段时间内，再额外放大刷新间隔（减缓刷怪速度）
+        spawnInterval = spawnInterval * 2.0;
+    }
+    
+    // 如果刚刚击杀过第4个Boss及之后的Boss，在一段时间内进一步减缓刷怪速度
+    if (gameState.boss4PlusSlowEndTime && Date.now() < gameState.boss4PlusSlowEndTime) {
+        // 在这段时间内，再额外放大刷新间隔（减缓刷怪速度）
         spawnInterval = spawnInterval * 2.0;
     }
     
@@ -4736,8 +4751,19 @@ function checkCollisions() {
                         // 40 秒内全局刷怪额外减速（延长减速时间）
                         gameState.splitSlowEndTime = Date.now() + 40000;
                     }
+                    // 如果击杀的是冲撞Boss，开启一段时间的刷怪减速期，方便玩家清理残余怪物
+                    if (boss.type === BossType.CHARGE) {
+                        // 40 秒内全局刷怪额外减速（延长减速时间）
+                        gameState.chargeSlowEndTime = Date.now() + 40000;
+                    }
                     gameState.kills += boss.score;
                     gameState.bossKills++;
+                    
+                    // 如果击杀的是第4个Boss及之后的Boss，开启一段时间的刷怪减速期
+                    if (gameState.bossKills >= 4) {
+                        // 40 秒内全局刷怪额外减速（延长减速时间）
+                        gameState.boss4PlusSlowEndTime = Date.now() + 40000;
+                    }
                     
                     // 根据BOSS击杀数确定经验值奖励
                     let bossExp = 0;
@@ -5439,8 +5465,19 @@ function gameLoop() {
                             // 40 秒内全局刷怪额外减速（延长减速时间）
                             gameState.splitSlowEndTime = Date.now() + 40000;
                         }
+                        // 如果击杀的是冲撞Boss，开启一段时间的刷怪减速期，方便玩家清理残余怪物
+                        if (boss.type === BossType.CHARGE) {
+                            // 40 秒内全局刷怪额外减速（延长减速时间）
+                            gameState.chargeSlowEndTime = Date.now() + 40000;
+                        }
                         gameState.kills += boss.score;
                         gameState.bossKills++;
+                        
+                        // 如果击杀的是第4个Boss及之后的Boss，开启一段时间的刷怪减速期
+                        if (gameState.bossKills >= 4) {
+                            // 40 秒内全局刷怪额外减速（延长减速时间）
+                            gameState.boss4PlusSlowEndTime = Date.now() + 40000;
+                        }
                         
                         // 根据BOSS击杀数确定经验值奖励
                         let bossExp = 0;
